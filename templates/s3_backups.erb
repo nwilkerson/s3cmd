@@ -1,0 +1,26 @@
+#!/bin/bash
+
+S3CMD='/usr/local/bin/s3cmd'
+date_old_weekly=`date --date\="<%= @week_keep %> weeks  ago" +%Y.%m.%d`
+date=`date --date\="last monday" +%Y.%m.%d`
+day_full=`date +%A`
+day=`date +%d`
+month=`date +%B`
+date_old_monthly=`date --date\='<%= @week_keep %> months ago' +%B`
+
+s3_bucket='<%= @s3_bucket %>'
+backup_dir='<%= @backup_path%>'
+
+if  [ "$day_full" == 'Monday' ]
+then
+  echo "Its Monday"
+  echo "$S3CMD del --recursive s3://$s3_bucket/$date_old_weekly"
+fi
+
+if [ "$day" ==  "01" ]
+then
+$S3CMD sync $backup_dir s3://$s3_bucket/$month/
+
+  echo "$SECMD del --recursive s3://$s3_bucket/$date_old_monthly"
+fi
+$S3CMD sync --delete-removed $backup_dir s3://$s3_bucket/$date/
